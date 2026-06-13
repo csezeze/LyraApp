@@ -33,12 +33,28 @@
 
 - Seçim: **MVI (Model-View-Intent)**
 
-- Son Güncelleme Tarihi: 09.06.2026
+- Son Güncelleme Tarihi: 13.06.2026
 
 - Kapsam: Her ekran State + Intent + Effect sözleşmesiyle yazılır. Detaylı kurallar ve
   referans implementasyon (Login) için bkz. [architecture/mvi-overview.md](architecture/mvi-overview.md).
 
 - Sebep: Tek yönlü veri akışı, durumsuz UI, test edilebilirlik.
+
+
+### MVI Effect Toplama Standardı
+
+- Seçim: **`CollectEffect(...)` Route helper'ı**
+
+- Son Güncelleme Tarihi: 13.06.2026
+
+- Uygulama: `ui/mvi/CollectEffect.kt`, ViewModel'den gelen `Flow<Effect>` akışını
+  `repeatOnLifecycle(Lifecycle.State.STARTED)` ile toplar. Route katmanı Effect'i bu helper
+  üzerinden tüketir; Screen katmanı yalnızca `state` ve `onIntent` parametreleriyle çalışmaya
+  devam eder.
+
+- Sebep: Route dosyalarında tekrarlanan `LaunchedEffect + collect` kalıbını standartlaştırmak,
+  Effect tüketimini lifecycle'a uyumlu hale getirmek ve yeni MVI ekranları için daha açık bir
+  referans desen oluşturmak.
 
 
 ### Hilt Annotation Processing

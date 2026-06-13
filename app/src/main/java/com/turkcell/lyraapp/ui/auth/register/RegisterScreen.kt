@@ -31,7 +31,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -49,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.turkcell.lyraapp.ui.icons.LyraIcons
+import com.turkcell.lyraapp.ui.mvi.CollectEffect
 import com.turkcell.lyraapp.ui.theme.LyraAppTheme
 
 /**
@@ -69,14 +69,12 @@ fun RegisterRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                RegisterEffect.NavigateToHome -> onNavigateToHome()
-                RegisterEffect.NavigateToLogin -> onNavigateToLogin()
-                RegisterEffect.NavigateBack -> onNavigateBack()
-                is RegisterEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-            }
+    CollectEffect(viewModel.effect) { effect ->
+        when (effect) {
+            RegisterEffect.NavigateToHome -> onNavigateToHome()
+            RegisterEffect.NavigateToLogin -> onNavigateToLogin()
+            RegisterEffect.NavigateBack -> onNavigateBack()
+            is RegisterEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
         }
     }
 
