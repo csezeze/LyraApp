@@ -50,7 +50,7 @@
 - Sürümler: Hilt **2.59.2**, KSP **2.2.10-2.0.2** (Kotlin 2.2.10 ile birebir uyumlu).
 
 - Compose'da ViewModel: `androidx.hilt:hilt-lifecycle-viewmodel-compose` (`hiltViewModel()`).
-  Compose Navigation henüz kurulmadığından navigation-compose bağımlılığı eklenmemiştir.
+  Compose Navigation `androidx.navigation:navigation-compose` ile kurulmuştur.
 
 - Sebep: KSP, kapt'a göre belirgin biçimde hızlıdır ve Kotlin 2.2 ile uyumludur.
 
@@ -73,3 +73,23 @@
 
 - Sebep: Backend REST API sözleşmesi tanımlı değil (`agents.md` §2.2 uydurmak yasak). Gerçek API
   geldiğinde yalnızca implementasyon ve DI bağlaması değişir; ViewModel/Contract etkilenmez.
+
+
+### Ana Sayfa MVI ve Fake İçerik Kaynağı
+
+- Karar: **Ana Sayfa**, Login ve Register ile aynı MVI referansını izler.
+
+- Son Güncelleme Tarihi: 13.06.2026
+
+- Kapsam: `ui/home/` altında `HomeContract`, `HomeViewModel` ve `HomeScreen` yapısı kullanılır.
+  Ekranın gözlemlenebilir içerikleri `HomeUiState` içinde tutulur; kullanıcı etkileşimleri
+  `HomeIntent` üzerinden ViewModel'e iletilir. Tek seferlik olay gerekiyorsa `HomeEffect`
+  `Channel` ile yayınlanır.
+
+- Veri Kaynağı: Backend sözleşmesi henüz bulunmadığından Ana Sayfa içerikleri
+  `HomeRepository` interface'i ve `FakeHomeRepository` implementasyonu üzerinden sağlanır.
+  Gerçek API geldiğinde ViewModel/Contract değiştirilmeden yalnızca repository implementasyonu
+  ve DI binding hedefi değiştirilir.
+
+- Sebep: Ödev kapsamı Login, Register ve Ana Sayfa ekranlarının fake repository ile state'li
+  şekilde çalışmasıdır; gerçek API veya medya oynatma davranışı bu kapsamda değildir.
