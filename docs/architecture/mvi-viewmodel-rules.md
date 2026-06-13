@@ -102,8 +102,8 @@ private fun submit() {
 İki composable zorunludur:
 
 - **`<Screen>Route`** (durumlu/stateful): ViewModel'i `hiltViewModel()` ile alır, state'i
-  `collectAsStateWithLifecycle()` ile toplar, Effect'leri `LaunchedEffect` içinde tüketir.
-  Tek MVI köprüsü burasıdır.
+  `collectAsStateWithLifecycle()` ile toplar, Effect'leri ortak `CollectEffect(...)` helper'ı
+  ile tüketir. Tek MVI köprüsü burasıdır.
 - **`<Screen>Screen`** (durumsuz/stateless): `state: <Screen>UiState` ve
   `onIntent: (<Screen>Intent) -> Unit` parametrelerini alır; preview edilebilir olmalıdır.
 
@@ -115,20 +115,24 @@ fun LoginRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is LoginEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                LoginEffect.NavigateToHome -> { /* Navigasyon kurulunca buraya bağlanır */ }
-            }
+
+    CollectEffect(viewModel.effect) { effect ->
+        when (effect) {
+            is LoginEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+            LoginEffect.NavigateToHome -> { /* Navigasyon kurulunca buraya bağlanır */ }
         }
     }
+
     LoginScreen(state = uiState, onIntent = viewModel::onIntent, snackbarHostState = snackbarHostState, modifier = modifier)
 }
 ```
 
 **Yasak:** `<Screen>Screen` içinde ViewModel referansı, repository çağrısı veya iş mantığı.
 UI yalnızca `onIntent(...)` ile niyet yayar.
+
+`CollectEffect(...)`, `ui/mvi/CollectEffect.kt` içinde tutulur ve Effect akışını lifecycle
+`STARTED` durumundayken toplar. Yeni Route'larda doğrudan `LaunchedEffect { effect.collect { ... } }`
+yazmak yerine bu helper kullanılmalıdır.
 
 ---
 
